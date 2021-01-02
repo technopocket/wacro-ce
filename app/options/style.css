@@ -1,0 +1,34 @@
+.page-content .mdl-card {
+  margin: 5% auto;
+  width: 90%;
+  max-width:600px;
+}
+
+#favorite_list .favicon {
+  margin: 2px;
+  width: 24px;
+  height: 24px;
+}
+
+
+#favorite_list .delete {
+  transform: scale(0.6);
+}
+
+#favorite_list .mdl-list__item {
+  cursor: move;
+  padding: 10px 0px 0px 10px;
+}
+
+#favorite_dialog {
+  width: 500px;
+}
+
+.width_100 {
+  width: 100px;
+}
+
+.favicon {
+  min-width: 24px;
+  min-height: 24px;
+}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>rQuery Console</title>
+    </head>
+    <body>
+        <div id="place">a</div>
+        <div class="parent">
+        </div>
+        <button class="open_js_area2" value="1">1</button>
+        <button class="open_js_area2" value="2">2</button>
+        <button class="open_js_area2" value="3">3</button>
+        <button class="open_js_area2" value="4">4</button>
+        <div id="result"></div>
+        <script>
+            console.log("test");
+let dom_list = document.querySelectorAll('.open_js_area2');
+dom_list.forEach(dom => {
+    dom.addEventListener('click', function() {
+        console.log(this.value);
+        let dom2 = document.querySelector('#result');
+        console.log(dom2);
+        dom2.innerHTML += this.value;
+    });
+});
+        </script>
+    </body>
+</html>

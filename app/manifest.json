@@ -1,0 +1,50 @@
+{
+  "manifest_version": 2,
+  "name": "Wacro",
+  "short_name": "Wacro",
+  "description": "Web Scraping Searvice",
+  "version": "0.0.1",
+  "minimum_chrome_version": "38",
+  "icons": {
+    "16": "./assets/icon_16.png",
+    "128": "./assets/icon_128.png"
+  },
+  "background": {
+    "scripts": [
+      "./commons/libs/wacro/wacro.js",
+      "./commons/script.js",
+      "./background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js":[
+        "./commons/libs/jquery/jquery-3.3.1.min.js",
+        "./commons/libs/wacro/wacro.js",
+        "./commons/script.js",
+        "./content_script.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "browser_action": {
+    "default_popup": "./popup/index.html",
+    "default_icon": "./assets/icon_128.png"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "options_page": "./options/index.html",
+  "permissions": [
+    "downloads",
+    "storage",
+    "webRequest",
+    "unlimitedStorage",
+    "http://*/*",
+    "https://*/*",
+    "tabs",
+    "contextMenus"
+  ]
+}

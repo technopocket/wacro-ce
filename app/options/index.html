@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Options</title>
+  <link rel="stylesheet" href="../common/lib/mdl/material.min.css">
+  <link rel="stylesheet" href="../common/lib/mdl/icon.css">
+  <link rel="stylesheet" href="./style.css">
+  <script src="../common/lib/jquery/jquery-3.3.1.min.js"></script>
+  <script src="../common/lib/jquery-ui/jquery-ui.min.js"></script>
+  <script src="../common/lib/mdl/material.min.js"></script>
+  <script src="../common/lib/storejs/store.legacy.min.js"></script>
+  <script src="../common/script.js"></script>
+  <script src="script.js"></script>
+</head>
+<body>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Settings</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+      </nav>
+    </div>
+  </header>
+  <main class="mdl-layout__content">
+    <div class="page-content">
+      <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Popup Options</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+          This is an optional setting for pop-up windows.
+        </div>
+        <ul class="demo-list-control mdl-list">
+          <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+              Default Popup Size
+            </span>
+            <span class="mdl-list__item-secondary-action">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label width_100">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="default_popup_width">
+                <label class="mdl-textfield__label" for="default_popup_width">Width</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label width_100">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="default_popup_height">
+                <label class="mdl-textfield__label" for="default_popup_height">Height</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+              </div>
+            </span>
+          </li>
+          <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+              Show confirm on delete favorite
+            </span>
+            <span class="mdl-list__item-secondary-action">
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="is_show_confirm_on_delete_favorite">
+                <input type="checkbox" id="is_show_confirm_on_delete_favorite" class="mdl-switch__input" checked />
+              </label>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+          <h2 class="mdl-card__title-text">Favorites</h2>
+        </div>
+        <ul id="favorite_list" class="demo-list-control mdl-list">
+          <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+              Close tab when window is opened
+            </span>
+            <span class="mdl-list__item-secondary-action">
+              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="is_close_tab">
+                <input type="checkbox" id="is_close_tab" class="mdl-switch__input" checked />
+              </label>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<dialog id="favorite_dialog" class="mdl-dialog">
+  <h4 id="favorite_dialog_title" class="mdl-dialog__title">Favorite options</h4>
+  <div class="mdl-dialog__content">
+    <p id="favorite_dialog_detail">
+      Favorite options.
+    </p>
+    <input id="base_url" type="hidden" value="" />
+    <ul class="demo-list-control mdl-list">
+      <li class="mdl-list__item">
+        <span class="mdl-list__item-primary-content">
+          Title
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="title">
+            <label class="mdl-textfield__label" for="title">title...</label>
+          </div>
+        </span>
+      </li>
+      <li class="mdl-list__item">
+        <span class="mdl-list__item-primary-content">
+          Url
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="url">
+            <label class="mdl-textfield__label" for="url">Url...</label>
+          </div>
+        </span>
+      </li>
+      <li class="mdl-list__item">
+        <span class="mdl-list__item-primary-content">
+          Favicon url
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <div class="mdl-textfield mdl-js-textfield">
+            <input class="mdl-textfield__input" type="text" id="favicon_url">
+            <label class="mdl-textfield__label" for="favicon_url">Favicon url...</label>
+          </div>
+        </span>
+      </li>
+      <li class="mdl-list__item">
+        <span class="mdl-list__item-primary-content">
+          Custom Popup Size
+        </span>
+        <span class="mdl-list__item-secondary-action">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label width_100">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="width">
+            <label class="mdl-textfield__label" for="width">Width</label>
+            <span class="mdl-textfield__error">Input is not a number!</span>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label width_100">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="height">
+            <label class="mdl-textfield__label" for="height">Height</label>
+            <span class="mdl-textfield__error">Input is not a number!</span>
+          </div>
+        </span>
+      </li>
+    </ul>
+  </div>
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button close">Close</button>
+  </div>
+</dialog>
+
+</body>
+
+</html>
