@@ -64,6 +64,12 @@ document.querySelector('#run_pixiv').onclick = () => {
             selector: '.sc-1qpw8k9-1'
         }
     });
+    action_list.push({
+        type:'wait',
+        params: {
+            time: '30000'
+        }
+    });
     let wacro = new Wacro();
     console.log(wacro);
     wacro.execute(action_list, function() {
@@ -71,6 +77,19 @@ document.querySelector('#run_pixiv').onclick = () => {
     }, console.log);
 };
 
+/*
+document.querySelector("#set_permissions").onclick = () => {
+    chrome.permissions.request({
+        permissions:[
+            "tabs",
+            "webRequest",
+            "downloads",
+            "webRequestBlocking"
+        ],
+        origins:"http://*.pixiv.net/ https://*.pixiv.net/ http://*.pximg.net/ https://*.pximg.net/ http://orca-soft.net/ https://orca-soft.net/".split(" ")
+    });
+}
+*/
 
 document.querySelector('#run_fortest').onclick = () => {
     let action_list = [];

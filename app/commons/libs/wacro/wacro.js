@@ -14,6 +14,7 @@ class Wacro {
     static REMOTE_METHODS = {
         EXECUTE_ACTION: 'executeAction',
         GET_REMAINING_PROCESS_LIST: 'getRemainingProcess',
+        DOWNLOAD_FILE: 'downloadFile',
     }
 
     static isChromeExtension() {
@@ -141,7 +142,7 @@ class Wacro {
      * ダウンロード処理 await を利用しない場合　ダウンロードの完了を待たず次の処理に進みます。
      * @param {*} url 
      */
-    static async download(url, filename = null) {
+    static async download(url, file_name = null) {
         async function check(downloadId) {
             return new Promise((resolve, reject) => {
                 chrome.downloads.search({id:downloadId}, (downloadItemList) => {
@@ -152,6 +153,7 @@ class Wacro {
         return new Promise(async (resolve, reject) => {
             chrome.downloads.download({
                 url:url,
+                filename: file_name,
             }, async (downloadId) => {
                 let tryCount = 0;
                 let isComplete = false;
@@ -159,7 +161,6 @@ class Wacro {
                 for (;!isComplete && tryCount < 10;) {
                     await this.sleep(Wacro.DOWNLOAD_CHECK_INTERVAL_TIME);
                     downloadItem = await check(downloadId);
-                    console.log(downloadItem);
                     tryCount++;
                     isComplete = downloadItem && (downloadItem.state == chrome.downloads.State.COMPLETE || downloadItem.state == chrome.downloads.State.INTERRUPTED);
                 }
@@ -214,6 +215,7 @@ class Wacro {
      * @param {*} file_name 
      */
     static async download4(url, file_name = null, callback=null) {
+        console.log(url);
         if (file_name == null) {
             let urlInfo = Wacro.url2UrlInfo(url);
             file_name = urlInfo.file_name + '.' + urlInfo.file_ext;
@@ -227,9 +229,55 @@ class Wacro {
         e.dataset.downloadurl = ["application/octet-stream", e.download, e.href].join(":");
         e.click();
         await this.sleep(200)
+        console.log(blob_url);
         window.URL.revokeObjectURL(blob_url);
         callback();
     }
+
+    
+    /**
+     * blobデータをDLしてダウンロードさせるパターン
+     * @param {*} url 
+     * @param {*} file_name 
+     */
+    static async download5(url, file_name = null, callback=null) {
+        console.log(url);
+        if (file_name == null) {
+            let urlInfo = Wacro.url2UrlInfo(url);
+            file_name = urlInfo.file_name + '.' + urlInfo.file_ext;
+        }
+        let res = await fetch(url);
+        let blob = await res.blob();
+        var blob_url = URL.createObjectURL(blob);
+        console.log(blob_url);
+        
+        await Wacro.sendMessageToBackgroundPage({
+            method:Wacro.REMOTE_METHODS.DOWNLOAD_FILE,
+            params: {url:blob_url, file_name:file_name},
+        });
+        
+        //await Wacro.download(url, file_name);
+        await this.sleep(200)
+        callback();
+    }
+
+    /*
+    static reqXhr(url, callback=null) {
+        console.log(['vvv',url]);
+        var e = new XMLHttpRequest;
+        e.open("GET", url, true);
+        e.responseType = "arraybuffer";
+        e.timeout = 10000;
+        e.addEventListener("loadend", function() {
+            console.log(e);
+            if (callback) {
+                callback();
+            }
+            //200 === e.status ? (option.debug && console.log("byteTransfer:" + url), "function" === typeof c && c(e.response, y)) : (option.debug && console.log("ERROR(" + e.status + " " + e.statusText + "):" + url), "function" === typeof m && m(e.statusText, y))
+        });
+        e.send()
+    }
+    */
 
     static downloadUrlList(url_list, callback) {
         let recursive = async (url_list, number) => {
@@ -298,7 +346,6 @@ class Wacro {
     };
 
     static async sendMessageToBackgroundPage(message) {
-        console.log('send main:', chrome_tab_id, message);
         return new Promise((resolve, reject) => {
             console.log(message);
             chrome.runtime.sendMessage(message, resolve);
@@ -416,7 +463,8 @@ class Wacro {
             */
             for (let url of result.url_list) {                ;
                 Wacro.remaining_process_list.push(Wacro.process_id++);
-                Wacro.download4(url, null, () => {
+                Wacro.download5(url, null, () => {
+                    console.log("mipi");
                     Wacro.remaining_process_list.pop();
                 });
             }
@@ -545,11 +593,13 @@ class Wacro {
                     }
                 } else if (action.type == "download") {
                     /*
+                    console.log(result);
                     for (let url of result.url_list) {
                         console.log(url);
                         await Wacro.download(url);
                     }
                     */
+                    
                 } else if (action.type == "export") {
                     Array.prototype.push.apply(this.export_list, result.value_list);
                 }
@@ -580,7 +630,7 @@ class Wacro {
 
     }
 }
-
+console.log(chrome);
 console.log(Wacro.isChromeExtension());
 
 if (Wacro.isChromeExtension()) {
@@ -590,6 +640,9 @@ if (Wacro.isChromeExtension()) {
             sendResponse(Wacro.executeActionForBrowser(request.action));
         } else if (request.method == Wacro.REMOTE_METHODS.GET_REMAINING_PROCESS_LIST) {
             sendResponse({remaining_process_list:Wacro.remaining_process_list});
+        } else if (request.method == Wacro.REMOTE_METHODS.DOWNLOAD_FILE) {
+            Wacro.download(request.params.url, request.params.file_name);
+            sendResponse({});
         }
     });
     

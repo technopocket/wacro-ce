@@ -11,8 +11,6 @@
   },
   "background": {
     "scripts": [
-      "./commons/libs/wacro/wacro.js",
-      "./commons/script.js",
       "./background.js"
     ]
   },
@@ -35,15 +33,17 @@
     "default_popup": "./popup/index.html",
     "default_icon": "./assets/icon_128.png"
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": "default-src 'self'; img-src 'self' http://* https://* data:; script-src 'self'; style-src 'self' http://* https://* data: 'unsafe-inline'; connect-src 'self' http://* https://*; frame-src 'self' http://* https://*;  font-src data:",
   "options_page": "./options/index.html",
   "permissions": [
-    "downloads",
-    "storage",
-    "webRequest",
-    "unlimitedStorage",
     "http://*/*",
     "https://*/*",
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "downloads",
+    "storage",
+    "unlimitedStorage",
     "tabs",
     "contextMenus"
   ]
