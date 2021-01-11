@@ -1,5 +1,5 @@
 document.querySelector('#run_console').onclick = () => {
-    let action_list = [];
+    let action_list = [];    
     action_list.push({
         type:'goto',
         params:{
@@ -15,7 +15,8 @@ document.querySelector('#run_console').onclick = () => {
     action_list.push({
         type:'download',
         params:{
-            selector: 'img'
+            selector: 'img',
+            attr: 'src'
         }
     });
     action_list.push({
@@ -53,21 +54,10 @@ document.querySelector('#run_pixiv').onclick = () => {
         }
     });
     action_list.push({
-        type:'wait',
-        params: {
-            time: '200'
-        }
-    });
-    action_list.push({
         type:'download',
         params: {
-            selector: '.sc-1qpw8k9-1'
-        }
-    });
-    action_list.push({
-        type:'wait',
-        params: {
-            time: '30000'
+            selector: '.gtm-expand-full-size-illust',
+            attr: 'href',
         }
     });
     let wacro = new Wacro();

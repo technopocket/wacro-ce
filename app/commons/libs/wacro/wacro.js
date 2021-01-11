@@ -5,10 +5,10 @@ class Wacro {
         },
     }
 
-    static default_config = {
-        process_window_width:0,
-        process_window_height:0,
-        is_show_process_window: true,
+    static CONFIG = {
+        PROCESS_WINDOW_WIDTH:600,
+        PROCESS_WINDOW_HEIGHT:400,
+        IS_SHOW_PROCESS_WINDOW: true,
     }
 
     static REMOTE_METHODS = {
@@ -142,7 +142,7 @@ class Wacro {
      * ダウンロード処理 await を利用しない場合　ダウンロードの完了を待たず次の処理に進みます。
      * @param {*} url 
      */
-    static async download(url, file_name = null) {
+    static async downloadForCE(url, file_name = null) {
         async function check(downloadId) {
             return new Promise((resolve, reject) => {
                 chrome.downloads.search({id:downloadId}, (downloadItemList) => {
@@ -176,7 +176,6 @@ class Wacro {
      * @param {*} filename 
      */
     static download2(url, filename = null) {
-        //let url = "https://i.pximg.net/img-master/img/2020/07/12/08/09/41/82916761_p0_master1200.jpg";
         let a = document.createElement("a");
         document.body.appendChild(a);
         a.download = url;
@@ -186,62 +185,13 @@ class Wacro {
         a.remove();
         return true;
     }
-
-    static extension_str = "wacro_mode";
-    /**
-     * cmd + click で別タブを開いてキャンバスに描画させてDLさせるパターン
-     * @param {*} url 
-     * @param {*} filename 
-     */
-    static download3(url, file_name = null) {
-        let a = document.createElement("a");
-        document.body.appendChild(a);
-        let url_info = Wacro.url2UrlInfo(url);
-        let ext_str = (url_info.query_string ? '&':'?') + Wacro.extension_str + '=1';
-        a.href = url + ext_str;
-        let evt = new MouseEvent("click", {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-            metaKey: true,
-        });
-        a.dispatchEvent(evt);
-        a.remove();
-    }
-
-    /**
-     * blobデータをDLしてダウンロードさせるパターン
-     * @param {*} url 
-     * @param {*} file_name 
-     */
-    static async download4(url, file_name = null, callback=null) {
-        console.log(url);
-        if (file_name == null) {
-            let urlInfo = Wacro.url2UrlInfo(url);
-            file_name = urlInfo.file_name + '.' + urlInfo.file_ext;
-        }
-        let res = await fetch(url);
-        let blob = await res.blob();
-        var blob_url = URL.createObjectURL(blob);
-        var e = document.createElement("a");
-        e.download = file_name;
-        e.href = blob_url;
-        e.dataset.downloadurl = ["application/octet-stream", e.download, e.href].join(":");
-        e.click();
-        await this.sleep(200)
-        console.log(blob_url);
-        window.URL.revokeObjectURL(blob_url);
-        callback();
-    }
-
     
     /**
      * blobデータをDLしてダウンロードさせるパターン
      * @param {*} url 
      * @param {*} file_name 
      */
-    static async download5(url, file_name = null, callback=null) {
-        console.log(url);
+    static async downloadForBlob(url, file_name = null, callback=null) {
         if (file_name == null) {
             let urlInfo = Wacro.url2UrlInfo(url);
             file_name = urlInfo.file_name + '.' + urlInfo.file_ext;
@@ -255,55 +205,8 @@ class Wacro {
             method:Wacro.REMOTE_METHODS.DOWNLOAD_FILE,
             params: {url:blob_url, file_name:file_name},
         });
-        
-        //await Wacro.download(url, file_name);
         await this.sleep(200)
         callback();
-    }
-
-    /*
-    static reqXhr(url, callback=null) {
-        console.log(['vvv',url]);
-        var e = new XMLHttpRequest;
-        e.open("GET", url, true);
-        e.responseType = "arraybuffer";
-        e.timeout = 10000;
-        e.addEventListener("loadend", function() {
-            console.log(e);
-            if (callback) {
-                callback();
-            }
-            //200 === e.status ? (option.debug && console.log("byteTransfer:" + url), "function" === typeof c && c(e.response, y)) : (option.debug && console.log("ERROR(" + e.status + " " + e.statusText + "):" + url), "function" === typeof m && m(e.statusText, y))
-        });
-        e.send()
-    }
-    */
-
-    static downloadUrlList(url_list, callback) {
-        let recursive = async (url_list, number) => {
-            await this.download4(url_list[number]);
-            number++;
-            url_list.length > number ? recursive(url_list, number) : callback();
-        };
-        recursive(url_list, 0);
-    }
-
-    static canvasDownload(url, file_name = null) {
-        let urlInfo = Wacro.url2UrlInfo(url);
-        console.log(urlInfo);
-        file_name = file_name ? file_name : urlInfo.file_name;
-        const img = document.querySelector('img');
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        canvas.getContext('2d').drawImage(img, 0, 0);
-        
-        let a = document.createElement("a");
-        document.body.appendChild(a);
-        // dataURL を取得
-        a.href = canvas.toDataURL('image/'+urlInfo.file_ext);
-        a.download = file_name + '.' + urlInfo.file_ext;
-        a.click();
     }
 
     // chrome function
@@ -311,8 +214,8 @@ class Wacro {
         return new Promise((resolve, reject) => {
             chrome.windows.create({
                 type: 'popup',
-                width: 960,
-                height: 800,
+                width: Wacro.CONFIG.PROCESS_WINDOW_WIDTH,
+                height: Wacro.CONFIG.PROCESS_WINDOW_HEIGHT,
                 top: 0,
                 left: 500,
             }, function (windowInfo) {
@@ -364,7 +267,6 @@ class Wacro {
                         if (!is_set_window_size) {
                             is_set_window_size = true;
                             chrome.windows.update(tab_info.windowId, {
-                                height: 0,
                             });
                         }
                         //console.log(tab_info, tab_info.status);
@@ -372,7 +274,6 @@ class Wacro {
                         await Wacro.sleep(100);
                     }
                     chrome.windows.update(tab_info.windowId, {
-                        height: 800,
                     });
                     await Wacro.sleep(100);
                     resolve(tab_info);
@@ -454,17 +355,10 @@ class Wacro {
         } else if (action.type == "export") {
             result.value_list = Wacro.getValueList(location.href, document, action.params.selector, action.params.attr);
         } else if (action.type == "download") {
-            result.url_list = Wacro.getValueList(location.href, document, action.params.selector, 'file-link');
-//            isEndAllProcess = false;
-            /*
-            Wacro.downloadUrlList(url_list, () => {
-                Wacro.isEndAllProcess = true;
-            });
-            */
+            result.url_list = Wacro.getValueList(location.href, document, action.params.selector, action.params.attr);
             for (let url of result.url_list) {                ;
                 Wacro.remaining_process_list.push(Wacro.process_id++);
-                Wacro.download5(url, null, () => {
-                    console.log("mipi");
+                Wacro.downloadForBlob(url, null, () => {
                     Wacro.remaining_process_list.pop();
                 });
             }
@@ -538,6 +432,8 @@ class Wacro {
                 console.log("後処理",result);
                 if (action.type == "wait") {
                     await Wacro.sleep(params.time);
+                } else if (action.type == "alert") {
+                    alert(params.text);
                 } else if (action.type == "page-link") {
                     //@note：ループ途中で加算して大丈夫か未確認
                     Array.prototype.push.apply(url_list, result.url_list);
@@ -592,14 +488,14 @@ class Wacro {
                         this.action_number = for_data['action_number'];
                     }
                 } else if (action.type == "download") {
+                    //
                     /*
                     console.log(result);
                     for (let url of result.url_list) {
                         console.log(url);
-                        await Wacro.download(url);
+                        await Wacro.downloadForCE(url);
                     }
                     */
-                    
                 } else if (action.type == "export") {
                     Array.prototype.push.apply(this.export_list, result.value_list);
                 }
@@ -641,17 +537,8 @@ if (Wacro.isChromeExtension()) {
         } else if (request.method == Wacro.REMOTE_METHODS.GET_REMAINING_PROCESS_LIST) {
             sendResponse({remaining_process_list:Wacro.remaining_process_list});
         } else if (request.method == Wacro.REMOTE_METHODS.DOWNLOAD_FILE) {
-            Wacro.download(request.params.url, request.params.file_name);
+            Wacro.downloadForCE(request.params.url, request.params.file_name);
             sendResponse({});
         }
     });
-    
-    let url_info = Wacro.url2UrlInfo(location.href);
-    if (["png","jpeg","jpg","gif"].includes(url_info.file_ext)
-        && url_info.query.wacro_mode && url_info.query.wacro_mode == "1") {
-        Wacro.canvasDownload(location.href);
-        setTimeout(() => {
-            window.close();
-        }, 1000);
-    }
 }
